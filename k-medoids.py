@@ -23,6 +23,7 @@ for i in range(it):
 
     d = input("Enter type of distance e/m: ")
 
+
     if d == "m":
         for i in range(0,k):
             #Manhattan Distance 
@@ -37,29 +38,25 @@ for i in range(it):
                     print(round(math.sqrt(math.pow(abs(mediods[i][0] - lst[j][0]),2) + math.pow(abs(mediods[i][1] - lst[j][1]),2)), 2))
                     lst2.append(round(math.sqrt(math.pow(abs(mediods[i][0] - lst[j][0]),2) + math.pow(abs(mediods[i][1] - lst[j][1]),2)), 2))
 
-            
-    
     lst3 = [ ]
     lst4 = [ ]
-    for i in range(len(lst2)):
-        if i < len(lst2)/2:
-            lst3.append(lst2[i])
-        else:
-            lst4.append(lst2[i])
+
+    result = [lst2[i:i + n] for i in range(0, len(lst2), n)]
+    lst5 = []
+    for i in range(len(result[0])):
+        for j in range(len(result)):
+            lst4.append(result[j][i])
+        lst5.append(lst4)
+        lst4 = []
     
-
-    c1 = [ ]
-    c2 = [ ]
-    cost = 0
-    for i in range(len(lst3)):
-        if(lst3[i]<lst4[i]):
-            cost += int(lst3[i])
-            c1.append(i+1)
-        else:
-            cost += int(lst4[i])
-            c2.append(i+1)
-
-    print("Cost: "+ str(cost))
-
-    print("Cluster1: "+ str(c1))
-    print("Cluster2:" + str(c2))
+    minimum = []
+    ind = []
+    cost = 0.0
+    for i in range(len(lst5)):
+        minimum.append(min(lst5[i]))
+        ind.append(int(lst5[i].index(min(lst5[i])))+1)
+    print("minimum distances",minimum)
+    print("cluster number they belong to",ind)
+    for i in range(len(minimum)):
+        cost += minimum[i]
+    print("cost",cost)
