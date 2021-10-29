@@ -1,28 +1,24 @@
 import math
 lst = [ ] 
-# n = int(input("Enter number of elements : ")) 
-# print("enter data points separated by space")
-# for i in range(0, n): 
-#     x, y = [float(x) for x in input().split()]  
-#     ele = [x,y]
-#     lst.append(ele) 
-# print(lst)
+n = int(input("Enter number of elements : ")) 
+print("enter data points separated by space")
+for i in range(0, n): 
+    x, y = [float(x) for x in input().split()]  
+    ele = [x,y]
+    lst.append(ele) 
+print(lst)
 lst2 =[ ]
 
 it = int(input("Enter number of iterations : ")) 
 
-# seed = []
-# k = int(input("Enter no. of seed points: ")) 
-# print("enter seed points separated by space")
-# for i in range(0, k): 
-#     a, b = [float(a) for a in input().split()]  
-#     ele = [a,b]
-#     seed.append(ele) 
-# print(seed)
-lst = [[2.0, 4.0], [2.0, 6.0], [5.0, 6.0], [4.0, 7.0], [8.0, 3.0], [6.0, 6.0], [5.0, 2.0], [5.0, 7.0], [6.0, 3.0], [4.0, 4.0]]
-seed = [[1.0, 5.0], [4.0, 1.0], [8.0, 4.0]]
-n = 10
-k = 3
+seed = []
+k = int(input("Enter no. of seed points: ")) 
+print("enter seed points separated by space")
+for i in range(0, k): 
+    a, b = [float(a) for a in input().split()]  
+    ele = [a,b]
+    seed.append(ele) 
+print(seed)
 
 for i in range(it):
     lst2 = []
