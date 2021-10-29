@@ -46,7 +46,7 @@ for i in range(it):
         if j<len(points[0]):
             print('{:<10}'.format("point"+str(j+1)), end="")
         elif j<(len(points[0]) + k):
-            print("{:<10}".format("d to C"+str(j-len(points[0]))), end="")
+            print("{:<10}".format("d to C"+str(j-len(points[0])+1)), end="")
         else:
             print("{:<10}".format("cluster assign"), end="")
     print()
