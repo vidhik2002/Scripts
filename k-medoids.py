@@ -1,6 +1,5 @@
 import math
 lst = [ ] 
-lst2 = [ ]
 n = int(input("Enter number of elements : ")) 
 print("enter data points separated by space")
 for i in range(0, n): 
@@ -12,6 +11,7 @@ print(lst)
 it = int(input("Enter number of iterations : ")) 
 
 for i in range(it):
+    lst2=[]
     mediods = []
     k = int(input("Enter k: ")) 
     print("enter mediod points separated by space")
