@@ -17,5 +17,5 @@ if d == "e":
 if d == "m":
     for i in range(len(lst)):
         for j in range(len(lst)):
-            print("distance of {} and {} = {}".format(i, j, abs(lst[i][0] - lst[j][0])+abs(lst[i][1] - lst[j][1])))
+            print("distance of {} and {} = {}".format(i+1, j+1, abs(lst[i][0] - lst[j][0])+abs(lst[i][1] - lst[j][1])))
         print("\n")
