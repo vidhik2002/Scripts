@@ -1,83 +1,70 @@
 import math
-lst = [ ] 
-n = int(input("Enter number of elements : ")) 
-print("enter data points separated by space")
-for i in range(0, n): 
-    x, y = [float(x) for x in input().split()]  
-    ele = [x,y]
-    lst.append(ele) 
-print(lst)
-lst2 =[ ]
 
-it = int(input("Enter number of iterations : ")) 
+n = int(input("Enter n: "))
+k = int(input("Enter k: "))
 
-seed = []
-k = int(input("Enter no. of seed points: ")) 
-print("enter seed points separated by space")
-for i in range(0, k): 
-    a, b = [float(a) for a in input().split()]  
-    ele = [a,b]
-    seed.append(ele) 
-print(seed)
+points = []
+for i in range(n):
+    points.append(list(map(float, input("Enter point space separated:\n").split())))
+# points = [
+#     [2.0, 10.0],
+#     [2.0, 5.0],
+#     [8.0, 4.0],
+#     [5.0, 8.0],
+#     [7.0, 5.0],
+#     [6.0, 4.0],
+#     [1.0, 2.0],
+#     [4.0, 9.0]
+#     ]
 
-for i in range(it):
-    lst2 = []
-    d = input("Enter type of distance e/m: ")
+# mean = [[2.0, 10.0], [5.0, 8.0], [1.0, 2.0]]
+mean = []
+for i in range(k):
+    mean.append(list(map(float, input("Enter means space separated:\n").split())))
 
-    if d == "m":
-        for i in range(0,k):
-            #Manhattan Distance 
-            print("cluster ", i+1)
-            for j in range(n):
-                print(abs(seed[i][0] - lst[j][0])+abs(seed[i][1] - lst[j][1]))
-                lst2.append(abs(seed[i][0] - lst[j][0])+abs(seed[i][1] - lst[j][1]))
-            
-    if d == "e":
-        for i in range(0,k):
-            print("cluster ", i+1)
-            for j in range(n):
-                print(round(math.sqrt(math.pow(abs(seed[i][0] - lst[j][0]),2) + math.pow(abs(seed[i][1] - lst[j][1]),2)), 2))
-                lst2.append(round(math.sqrt(math.pow(abs(seed[i][0] - lst[j][0]),2) + math.pow(abs(seed[i][1] - lst[j][1]),2)), 2))
+d = int(input("Power of distance: "))
 
-    lst3 = [ ]
-    lst4 = [ ]
+def dist(a, b):
+    return round(((math.fabs(a[0] - b[0])**d) + (math.fabs(a[1] - b[1])**d)) ** (1/d), 2)
 
-    result = [lst2[i:i + n] for i in range(0, len(lst2), n)]
-    lst5 = []
-    for i in range(len(result[0])):
-        for j in range(len(result)):
-            lst4.append(result[j][i])
-        lst5.append(lst4)
-        lst4 = []
+def printtable():
+    clusters = [[] for _ in range(k)]
+    print(f"""For means {' '.join(f"{i}" for i in mean)}""")
+    print()
+    print("Points\t\t" + "cluster\t"*k)
+    for i in range(len(points)):
+        print(points[i], end = "\t")
+        cv, cl = 999, 0
+        for j in range(k):
+            dis = dist(points[i], mean[j])
+            if dis < cv:
+                cv, cl = dis, j
+            print(dis, end = "\t")
+        clusters[cl].append(i)
+        print(cl, end = "\t")
+        print()
     
-    minimum = []
-    ind = []
-    cost = 0.0
-    for i in range(len(lst5)):
-        minimum.append(min(lst5[i]))
-        ind.append(int(lst5[i].index(min(lst5[i])))+1)
-    print("list of points",lst)
-    print("seed",seed)
-    print("minimum distances",minimum)
-    print("cluster number they belong to",ind)
-    
-    seed = [] 
-    centroid = [ ]
-    sumx = 0.0
-    sumy = 0.0
-    for i in range(1,k+1):
-        for j in range(len(ind)):
-            if ind[j] == i :
-                centroid.append(lst[j])
-        print(centroid)
-        for l in range(len(centroid)):
-            sumx += int(centroid[l][0])
-            sumy += int(centroid[l][1])
-        
-        sumx=sumx/len(centroid)
-        sumy=sumy/len(centroid)
-        seed.append([sumx,sumy])
-        sumx = 0.0
-        sumy = 0.0
-        centroid = []   
-    print(seed)
+    print("\nClusters:")
+    sv = -1
+    for i in clusters:
+        print(f"Cluster[{(sv := sv + 1)}] => " + ", ".join(f"({j})" + str(points[j]) for j in i))
+    return clusters
+
+def computeMean(cdata):
+    mean = []
+    for i in cdata:
+        x1, y1 = 0, 0
+        for j in i:
+            x1 += points[j][0]
+            y1 += points[j][1]
+        mean.append([round(x1/len(i), 2), round(y1/len(i), 2)])
+    print(f"""\nNew means {' '.join(f"{i}" for i in mean)}""")
+    return mean
+
+cprev, ccur = [], printtable()
+while cprev != ccur:
+    mean = computeMean(ccur)
+    cprev = ccur
+    ccur = printtable()
+else:
+    print("We have obtained final clusters")
