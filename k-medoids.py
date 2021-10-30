@@ -1,4 +1,6 @@
 import math
+import matplotlib.pyplot as plt
+
 from tabulate import tabulate
 
 def dist(choice, p1, p2):
@@ -13,6 +15,10 @@ print("enter data points separated by space")
 for i in range(0, n): 
     ele = tuple([float(x) for x in input().split()]) 
     lst.append(ele) 
+
+plt.scatter([a[0] for a in lst],[a[1] for a in lst],color='g')
+plt.grid(True)
+plt.show(block=False)
 
 
 # it = int(input("Enter number of iterations : ")) 
