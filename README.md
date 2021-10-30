@@ -13,4 +13,8 @@ git clone https://github.com/vidhik2002/ML-Scripts.git
 ```sh
 cd ML-Scripts
 ```
-3. Run the respective python file
+3. Run the following commands
+```sh
+ pip install -r requirements.txt
+ python <filename>
+ ```
