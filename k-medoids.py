@@ -1,43 +1,66 @@
 import math
+from tabulate import tabulate
+
+def dist(choice, p1, p2):
+    if choice == 1:
+        return (math.sqrt(sum(tuple(map(lambda i, j: (float(i) - float(j))**2, p1, p2)))))
+    else:
+        return (sum(tuple(map(lambda i, j: abs(float(i) - float(j)), p1, p2))))
+
 lst = [ ] 
 n = int(input("Enter number of elements : ")) 
 print("enter data points separated by space")
 for i in range(0, n): 
-    x, y = [float(x) for x in input().split()]  
-    ele = [x,y]
+    ele = tuple([float(x) for x in input().split()]) 
     lst.append(ele) 
-print(lst)
 
-it = int(input("Enter number of iterations : ")) 
 
-for i in range(it):
+# it = int(input("Enter number of iterations : ")) 
+
+k = int(input("Enter k: ")) 
+prevcluster=[]
+medoids=[]
+index=0
+index2=1
+cost = float('inf')
+print("enter mediod points separated by space")
+for i in range(0, k): 
+    ele = tuple([float(a) for a in input().split()]) 
+    medoids.append(ele)
+
+d = input("Enter type of distance e/m: ")
+
+while(True):
+
+    print("\n\nmedoids: {}\n".format(medoids))
+    # print("used medoids: {}".format(used_meds))
     lst2=[]
-    mediods = []
-    k = int(input("Enter k: ")) 
-    print("enter mediod points separated by space")
-    for i in range(0, k): 
-        a, b = [float(a) for a in input().split()]  
-        ele = [a,b]
-        mediods.append(ele) 
-    print(mediods)
+    
+    # print("enter mediod points separated by space")
+    # for i in range(0, k): 
+    #     a, b = [float(a) for a in input().split()]  
+    #     ele = [a,b]
+    #     medoids.append(ele) 
+    # print(medoids)
 
-    d = input("Enter type of distance e/m: ")
-
+    dists=[[] for i in range(n)]
 
     if d == "m":
         for i in range(0,k):
             #Manhattan Distance 
-            print("cluster ", i+1)
+            # print("cluster", i+1, "distance")
             for j in range(n):
-                print(abs(mediods[i][0] - lst[j][0])+abs(mediods[i][1] - lst[j][1]))
-                lst2.append(abs(mediods[i][0] - lst[j][0])+abs(mediods[i][1] - lst[j][1]))
+                # print(dist(2, lst[j], medoids[i]), end=" ")
+                lst2.append(dist(2, lst[j], medoids[i]))
+                dists[j].append(dist(2, lst[j], medoids[i]))
+            # print()
     if d == "e":
             for i in range(0,k):
-                print("cluster ", i+1)
-                for j in range(n):
-                    print(round(math.sqrt(math.pow(abs(mediods[i][0] - lst[j][0]),2) + math.pow(abs(mediods[i][1] - lst[j][1]),2)), 2))
-                    lst2.append(round(math.sqrt(math.pow(abs(mediods[i][0] - lst[j][0]),2) + math.pow(abs(mediods[i][1] - lst[j][1]),2)), 2))
-
+                # print("cluster", i+1, "distance")
+                # for j in range(n):
+                    # print(dist(1, lst[j], medoids[i]), end=" ")
+                lst2.append(dist(1, lst[j], medoids[i]))
+            # print()
     lst3 = [ ]
     lst4 = [ ]
 
@@ -51,12 +74,61 @@ for i in range(it):
     
     minimum = []
     ind = []
-    cost = 0.0
+    tempcost=0.0
     for i in range(len(lst5)):
         minimum.append(min(lst5[i]))
         ind.append(int(lst5[i].index(min(lst5[i])))+1)
-    print("minimum distances",minimum)
-    print("cluster number they belong to",ind)
+    table=[]
+    row=[]
+    row.append("point")
+    for j in range(len(dists[i])):
+        row.append("d from C{}".format(j+1))
+    row.append("min cost")
+    row.append("clusters assigned")
+    table.append(row)
+
+    for i in range(n):
+        row=[]
+        row.append(lst[i])
+        for j in dists[i]:
+            row.append(j)
+        row.append(minimum[i])
+        row.append(ind[i])
+        table.append(row)
+    print(tabulate(table, headers="firstrow", tablefmt="github"))
+    # print("minimum distances:",minimum)
+    # print("cluster number they belong to",ind)
     for i in range(len(minimum)):
-        cost += minimum[i]
-    print("cost",cost)
+        tempcost += minimum[i]
+    print("\ncost",tempcost)
+    cost = min(cost, tempcost)
+    ele = lst[index]
+    flag=False
+    while(ele in medoids):
+        index+=1
+        if index==len(lst):
+            flag=True
+            break
+        ele = lst[index]
+    if flag:
+        if index2==k:
+            break
+        else:
+            index2+=1
+            index=0
+    medoids[-index2]=ele
+
+print("\n\nminimum cost: {}".format(cost))
+
+"""
+2 6
+3 4
+3 8
+4 7
+6 2
+6 4
+7 3
+7 4
+8 5
+7 6
+"""
