@@ -19,3 +19,12 @@ if d == "m":
         for j in range(len(lst)):
             print("distance of {} and {} = {}".format(i+1, j+1, abs(lst[i][0] - lst[j][0])+abs(lst[i][1] - lst[j][1])))
         print("\n")
+
+'''
+5
+1 2
+3 5
+2 -1
+3 4.4
+2 5.2
+'''
