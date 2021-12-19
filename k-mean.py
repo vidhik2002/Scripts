@@ -1,6 +1,6 @@
 import math
 
-n = int(input("Enter n: "))
+n = int(input("Enter number of rows: "))
 k = int(input("Enter k: "))
 
 points = []
