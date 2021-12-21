@@ -4,24 +4,26 @@ eps = np.finfo(float).eps
 from numpy import log2 as log
 import pprint
 
-#outlook,temp,humidity,windy,play
+#titles = outlook,temp,humidity,windy,play
+# outlook = 'overcast,overcast,overcast,overcast,rainy,rainy,rainy,rainy,rainy,sunny,sunny,sunny,sunny,sunny'.split(',')
+# temp = 'hot,cool,mild,hot,mild,cool,cool,mild,mild,hot,hot,mild,cool,mild'.split(',')
+# humidity = 'high,normal,high,normal,high,normal,normal,normal,high,high,high,high,normal,normal'.split(',')
+# windy = 'FALSE,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,FALSE,TRUE'.split(',')
+# play = 'yes,yes,yes,yes,yes,yes,no,yes,no,no,no,no,yes,yes'.split(',')
+
 titles=[]
 titles = list(map(str, input("\nEnter the titles : ").split(',')))
-print(titles)
 
-outlook = 'overcast,overcast,overcast,overcast,rainy,rainy,rainy,rainy,rainy,sunny,sunny,sunny,sunny,sunny'.split(',')
-temp = 'hot,cool,mild,hot,mild,cool,cool,mild,mild,hot,hot,mild,cool,mild'.split(',')
-humidity = 'high,normal,high,normal,high,normal,normal,normal,high,high,high,high,normal,normal'.split(',')
-windy = 'FALSE,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,FALSE,TRUE'.split(',')
-play = 'yes,yes,yes,yes,yes,yes,no,yes,no,no,no,no,yes,yes'.split(',')
+attributes = []
+for j in range(0,len(titles)):
+    att = list(map(str, input("\nEnter the attributes of title %2d separated by comma: "%(j)).split(',')))
+    attributes.append(att)
 
-
-
-dataset ={'outlook':outlook,'temp':temp,'humidity':humidity,'windy':windy,'play':play}
+dataset = dict(zip(titles, attributes))
 df = pd.DataFrame(dataset,columns=titles)
 print(df)
 
-## 1.calculate entropy of the whole dataset
+# 1.calculate entropy of the whole dataset
 
 entropy_node = 0  #Initialize Entropy
 values = df.play.unique()  #Unique objects - 'Yes', 'No'
@@ -51,6 +53,13 @@ def ent(df,attribute):
 
 a_entropy = {k:ent(df,k) for k in df.keys()[:-1]}
 print("\nEntropy of each attribute\n",a_entropy)
+
+
+def ig(e_dataset,e_attr):
+    return(e_dataset-e_attr)
+#entropy_node = entropy of dataset
+#a_entropy[k] = entropy of k(th) attr
+IG = {k:ig(entropy_node,a_entropy[k]) for k in a_entropy}
 
 def find_entropy(df):
     Class = df.keys()[-1]   #To make the code generic, changing target variable class name
@@ -113,9 +122,7 @@ def buildTree(df,tree=None):
 
     for value in attValue:
         # print(value)
-        subtable = get_subtable(df,node,value)
-        # print(subtable)
-        # clValue,counts = np.unique(subtable['play'],return_counts=True)                        
+        subtable = get_subtable(df,node,value)                       
         clValue,counts = np.unique(subtable[titles[len(titles)-1]],return_counts=True)                        
         
         if len(counts)==1:#Checking purity of subset

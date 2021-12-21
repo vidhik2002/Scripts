@@ -1,7 +1,7 @@
 m = 0
 heads = {}
 n = int(input("Number of rows: "))
-for i in input("Enter table headings:\n").split(" "):
+for i in input("Enter table headings separated by space:\n").split(" "):
 # for i in ["Days", "Season", "Fog", "Rain", "Class"]:
     heads.update({i: []})
 
@@ -9,6 +9,7 @@ for i in input("Enter table headings:\n").split(" "):
 table = []
 for i in range(n):
     table.append(input(f"Enter table row {i}:\n").split(" "))
+
 
 # pred = ["Weekday", "Winter", "High", "Heavy"]
 pred = input("Enter your prediction tuple:\n").split(" ")
