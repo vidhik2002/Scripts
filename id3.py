@@ -1,15 +1,13 @@
-import numpy as np
-import pandas as pd
-eps = np.finfo(float).eps
-from numpy import log2 as log
-import pprint
+import pandas as pd #for manipulating the csv data
+import numpy as np #for mathematical calculation
 
-#titles = outlook,temp,humidity,windy,play
-# outlook = 'overcast,overcast,overcast,overcast,rainy,rainy,rainy,rainy,rainy,sunny,sunny,sunny,sunny,sunny'.split(',')
-# temp = 'hot,cool,mild,hot,mild,cool,cool,mild,mild,hot,hot,mild,cool,mild'.split(',')
-# humidity = 'high,normal,high,normal,high,normal,normal,normal,high,high,high,high,normal,normal'.split(',')
-# windy = 'FALSE,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE,FALSE,TRUE,FALSE,TRUE,FALSE,FALSE,TRUE'.split(',')
-# play = 'yes,yes,yes,yes,yes,yes,no,yes,no,no,no,no,yes,yes'.split(',')
+#Input
+# Outlook,Temperature,Humidity,Wind,Play Tennis
+# Sunny,Sunny,Overcast,Rain,Rain,Rain,Overcast,Sunny,Sunny,Rain,Sunny,Overcast,Overcast,Rain
+# Hot,Hot,Hot,Mild,Cool,Cool,Cool,Mild,Cool,Mild,Mild,Mild,Hot,Mild
+# High,High,High,High,Normal,Normal,Normal,High,Normal,Normal,Normal,High,Normal,High
+# Weak,Strong,Weak,Weak,Weak,Strong,Strong,Weak,Weak,Weak,Strong,Strong,Weak,Strong
+# No,No,Yes,Yes,Yes,No,Yes,No,Yes,Yes,Yes,Yes,Yes,No
 
 titles=[]
 titles = list(map(str, input("\nEnter the titles : ").split(',')))
@@ -19,118 +17,140 @@ for j in range(0,len(titles)):
     att = list(map(str, input("\nEnter the attributes of title %2d separated by comma: "%(j)).split(',')))
     attributes.append(att)
 
-dataset = dict(zip(titles, attributes))
-df = pd.DataFrame(dataset,columns=titles)
-print(df)
-
-# 1.calculate entropy of the whole dataset
-
-entropy_node = 0  #Initialize Entropy
-values = df.play.unique()  #Unique objects - 'Yes', 'No'
-for value in values:
-    fraction = df.play.value_counts()[value]/len(df.play)  
-    entropy_node += -fraction*np.log2(fraction)
-print("\nEntropy of whole dataset",round(entropy_node,4))
-
-## 2.Calculate entropy of each attribute
-def ent(df,attribute):
-    target_variables = df.play.unique()  #This gives all 'Yes' and 'No'
-    variables = df[attribute].unique()    #This gives different features in that attribute (like 'Sweet')
+train_data_m = dict(zip(titles, attributes))
+train_data_m = pd.DataFrame(train_data_m,columns=titles)
+print(train_data_m)
+prediction = titles[len(titles) - 1]
 
 
-    entropy_attribute = 0
-    for variable in variables:
-        entropy_each_feature = 0
-        for target_variable in target_variables:
-            num = len(df[attribute][df[attribute]==variable][df.play ==target_variable]) #numerator
-            den = len(df[attribute][df[attribute]==variable])  #denominator
-            fraction = num/(den+eps)  #pi
-            entropy_each_feature += -fraction*log(fraction+eps) #This calculates entropy for one feature like 'Sweet'
-        fraction2 = den/len(df)
-        entropy_attribute += -fraction2*entropy_each_feature   #Sums up all the entropy ETaste
-
-    return(abs(entropy_attribute))
-
-a_entropy = {k:ent(df,k) for k in df.keys()[:-1]}
-print("\nEntropy of each attribute\n",a_entropy)
+# train_data_m = pd.read_csv("PlayTennis.csv") #importing the dataset from the disk
+# print(train_data_m) #viewing some row of the dataset
+# prediction = 'Play Tennis'
 
 
-def ig(e_dataset,e_attr):
-    return(e_dataset-e_attr)
-#entropy_node = entropy of dataset
-#a_entropy[k] = entropy of k(th) attr
-IG = {k:ig(entropy_node,a_entropy[k]) for k in a_entropy}
+def calc_total_entropy(train_data, label, class_list):
+    total_row = train_data.shape[0] #the total size of the dataset
+    total_entr = 0
+    
+    for c in class_list: #for each class in the label
+        total_class_count = train_data[train_data[label] == c].shape[0] #number of the class
+        total_class_entr = - (total_class_count/total_row)*np.log2(total_class_count/total_row) #entropy of the class
+        total_entr += total_class_entr #adding the class entropy to the total entropy of the dataset
+    
+    return total_entr
 
-def find_entropy(df):
-    Class = df.keys()[-1]   #To make the code generic, changing target variable class name
+def calc_entropy(feature_value_data, label, class_list):
+    class_count = feature_value_data.shape[0]
     entropy = 0
-    values = df[Class].unique()
-    for value in values:
-        fraction = df[Class].value_counts()[value]/len(df[Class])
-        entropy += -fraction*np.log2(fraction)
+    
+    for c in class_list:
+        label_class_count = feature_value_data[feature_value_data[label] == c].shape[0] #row count of class c 
+        entropy_class = 0
+        if label_class_count != 0:
+            probability_class = label_class_count/class_count #probability of the class
+            entropy_class = - probability_class * np.log2(probability_class)  #entropy
+        entropy += entropy_class
     return entropy
-  
-  
-def find_entropy_attribute(df,attribute):
-  Class = df.keys()[-1]   #To make the code generic, changing target variable class name
-  target_variables = df[Class].unique()  #This gives all 'Yes' and 'No'
-  variables = df[attribute].unique()    #This gives different features in that attribute (like 'Hot','Cold' in Temperature)
-  entropy2 = 0
-  for variable in variables:
-      entropy = 0
-      for target_variable in target_variables:
-          num = len(df[attribute][df[attribute]==variable][df[Class] ==target_variable])
-          den = len(df[attribute][df[attribute]==variable])
-          fraction = num/(den+eps)
-          entropy += -fraction*log(fraction+eps)
-      fraction2 = den/len(df)
-      entropy2 += -fraction2*entropy
-  return abs(entropy2)
 
-
-def find_winner(df):
-    Entropy_att = []
-    IG = []
-    for key in df.keys()[:-1]:
-#         Entropy_att.append(find_entropy_attribute(df,key))
-        IG.append(find_entropy(df)-find_entropy_attribute(df,key))
-    return df.keys()[:-1][np.argmax(IG)]
-  
-  
-def get_subtable(df, node,value):
-  return df[df[node] == value].reset_index(drop=True)
-
-
-def buildTree(df,tree=None): 
-    Class = df.keys()[-1]   #To make the code generic, changing target variable class name
+def calc_info_gain(feature_name, train_data, label, class_list):
+    feature_value_list = train_data[feature_name].unique() #unqiue values of the feature
+    total_row = train_data.shape[0]
+    feature_info = 0.0
     
-    #Here we build our decision tree
+    for feature_value in feature_value_list:
+        feature_value_data = train_data[train_data[feature_name] == feature_value] #filtering rows with that feature_value
+        feature_value_count = feature_value_data.shape[0]
+        feature_value_entropy = calc_entropy(feature_value_data, label, class_list) #calculcating entropy for the feature value
+        feature_value_probability = feature_value_count/total_row
+        feature_info += feature_value_probability * feature_value_entropy #calculating information of the feature value
+    print("Entropy",feature_value,round(feature_info,4))   
+    return calc_total_entropy(train_data, label, class_list) - feature_info #calculating information gain by subtracting
 
-    #Get attribute with maximum information gain
-    node = find_winner(df)
+def find_most_informative_feature(train_data, label, class_list):
+    feature_list = train_data.columns.drop(label) #finding the feature names in the dataset
+                                            #N.B. label is not a feature, so dropping it
+    max_info_gain = -1
+    max_info_feature = None
     
-    #Get distinct value of that attribute e.g Salary is node and Low,Med and High are values
-    attValue = np.unique(df[node])
-    
-    #Create an empty dictionary to create tree    
-    if tree is None:                    
-        tree={}
-        tree[node] = {}
-    
-   #We make loop to construct a tree by calling this function recursively. 
-    #In this we check if the subset is pure and stops if it is pure. 
+    for feature in feature_list:  #for each feature in the dataset
+        feature_info_gain = calc_info_gain(feature, train_data, label, class_list)
+        if max_info_gain < feature_info_gain: #selecting feature name with highest information gain
+            max_info_gain = feature_info_gain
+            max_info_feature = feature
+        print("Information Gain", feature, round(feature_info_gain,4) )   
+        # print("Next cycle")
+    return max_info_feature
 
-    for value in attValue:
-        # print(value)
-        subtable = get_subtable(df,node,value)                       
-        clValue,counts = np.unique(subtable[titles[len(titles)-1]],return_counts=True)                        
+def generate_sub_tree(feature_name, train_data, label, class_list):
+    feature_value_count_dict = train_data[feature_name].value_counts(sort=False) #dictionary of the count of unqiue feature value
+    tree = {} #sub tree or node
+    
+    for feature_value, count in feature_value_count_dict.iteritems():
+        feature_value_data = train_data[train_data[feature_name] == feature_value] #dataset with only feature_name = feature_value
         
-        if len(counts)==1:#Checking purity of subset
-            tree[node][value] = clValue[0]                                                    
-        else:        
-            tree[node][value] = buildTree(subtable) #Calling the function recursively 
-                   
+        assigned_to_node = False #flag for tracking feature_value is pure class or not
+        for c in class_list: #for each class
+            class_count = feature_value_data[feature_value_data[label] == c].shape[0] #count of class c
+
+            if class_count == count: #count of feature_value = count of class (pure class)
+                tree[feature_value] = c #adding node to the tree
+                train_data = train_data[train_data[feature_name] != feature_value] #removing rows with feature_value
+                assigned_to_node = True
+        if not assigned_to_node: #not pure class
+            tree[feature_value] = "?" #should extend the node, so the branch is marked with ?
+            
+    return tree, train_data
+
+def make_tree(root, prev_feature_value, train_data, label, class_list):
+    if train_data.shape[0] != 0: #if dataset becomes enpty after updating
+        max_info_feature = find_most_informative_feature(train_data, label, class_list) #most informative feature
+        tree, train_data = generate_sub_tree(max_info_feature, train_data, label, class_list) #getting tree node and updated dataset
+        next_root = None
+        
+        if prev_feature_value != None: #add to intermediate node of the tree
+            root[prev_feature_value] = dict()
+            root[prev_feature_value][max_info_feature] = tree
+            next_root = root[prev_feature_value][max_info_feature]
+        else: #add to root of the tree
+            root[max_info_feature] = tree
+            next_root = root[max_info_feature]
+        
+        for node, branch in list(next_root.items()): #iterating the tree node
+            if branch == "?": #if it is expandable
+                feature_value_data = train_data[train_data[max_info_feature] == node] #using the updated dataset
+                make_tree(next_root, node, feature_value_data, label, class_list) #recursive call with updated dataset
+
+def id3(train_data_m, label):
+    train_data = train_data_m.copy() #getting a copy of the dataset
+    tree = {} #tree which will be updated
+    class_list = train_data[label].unique() #getting unqiue classes of the label
+    make_tree(tree, None, train_data_m, label, class_list) #start calling recursion
     return tree
-  
-t = buildTree(df)
-pprint.pprint(t)
+
+tree = id3(train_data_m, prediction)
+print("\n")
+print(tree)
+
+def predict(tree, instance):
+    if not isinstance(tree, dict): #if it is leaf node
+        return tree #return the value
+    else:
+        root_node = next(iter(tree)) #getting first key/feature name of the dictionary
+        feature_value = instance[root_node] #value of the feature
+        if feature_value in tree[root_node]: #checking the feature value in current tree node
+            return predict(tree[root_node][feature_value], instance) #goto next feature
+        else:
+            return None
+def evaluate(tree, test_data_m, label):
+    correct_preditct = 0
+    wrong_preditct = 0
+    for index, row in test_data_m.iterrows(): #for each row in the dataset
+        result = predict(tree, test_data_m.iloc[index]) #predict the row
+        if result == test_data_m[label].iloc[index]: #predicted value and expected value is same or not
+            correct_preditct += 1 #increase correct count
+        else:
+            wrong_preditct += 1 #increase incorrect count
+    accuracy = correct_preditct / (correct_preditct + wrong_preditct) #calculating accuracy
+    return accuracy
+
+accuracy = evaluate(tree, train_data_m, 'Play Tennis') #evaluating the test dataset
