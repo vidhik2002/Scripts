@@ -1,4 +1,4 @@
-# ML-Scripts
+Scripts
 
 A bunch of useful scripts to solve Machine-Learning Problems !
 #### Pre-requisites
@@ -7,14 +7,14 @@ A bunch of useful scripts to solve Machine-Learning Problems !
 
 1. Clone the repo
 ```sh
-git clone https://github.com/vidhik2002/ML-Scripts.git
+git clone https://github.com/vidhik2002/Scripts.git
 ```
 2. Move into folder
 ```sh
-cd ML-Scripts
+cd Scripts
 ```
 3. Run the following commands
 ```sh
  pip install -r requirements.txt
- python <filename>
+ python <foldername><filename>
  ```
